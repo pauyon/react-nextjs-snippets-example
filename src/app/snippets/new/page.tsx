@@ -1,42 +1,56 @@
-import { redirect } from 'next/navigation';
-import { db } from "@/db"
-
+"use client";
+ 
+import { useActionState, startTransition } from "react";
+import * as actions from "@/actions";
+ 
 export default function SnippetCreatePage() {
-
-    async function createSnippet(formData: FormData) {
-        // Needs to be server action
-        'use server'; // this string tells nextjs to treat this as server action
-
-        // Check user's inputs to make sure they are valid
-        const title = formData.get('title') as string;
-        const code = formData.get('code') as string;
-
-        // Create a new record in the database
-        const snippet = await db.snippet.create({
-            data: {
-                title,
-                code
-            }
-        });
-
-        // Redirect the user back to the root route
-        redirect('/');
-    }
-
-    return (
-        <form action={createSnippet}>
-            <h3 className="font-bold m-3">Create a Snippet</h3>
-            <div className="flex flex-col gap-4">
-                <div className="flex gap-4">
-                    <label htmlFor="title" className="w-12">Title</label>
-                    <input name="title" className="border rounder p-2 w-full" />
-                </div>
-                <div className="flex gap-4">
-                    <label htmlFor="code" className="w-12">Code</label>
-                    <textarea name="code" className="border rounder p-2 w-full" />
-                </div>
-                <button type="submit" className="rounder p-2 bg-blue-200">Create</button>
-            </div>
-        </form>
-    )
+  const [formState, action] = useActionState(actions.createSnippet, {
+    message: "",
+  });
+ 
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    startTransition(() => {
+      action(formData);
+    });
+  }
+  return (
+    <form onSubmit={handleSubmit}>
+      <h3 className="font-bold m-3">Create a Snippet</h3>
+      <div className="flex flex-col gap-4">
+        <div className="flex gap-4">
+          <label className="w-12" htmlFor="title">
+            Title
+          </label>
+          <input
+            name="title"
+            className="border rounded p-2 w-full"
+            id="title"
+          />
+        </div>
+ 
+        <div className="flex gap-4">
+          <label className="w-12" htmlFor="code">
+            Code
+          </label>
+          <textarea
+            name="code"
+            className="border rounded p-2 w-full"
+            id="code"
+          />
+        </div>
+ 
+        {formState.message ? (
+          <div className="my-2 p-2 bg-red-200 border rounded border-red-400">
+            {formState.message}
+          </div>
+        ) : null}
+ 
+        <button type="submit" className="rounded p-2 bg-blue-200">
+          Create
+        </button>
+      </div>
+    </form>
+  );
 }
