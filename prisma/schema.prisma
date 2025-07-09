@@ -12,7 +12,7 @@ datasource db {
 }
 
 model Snippet {
-  id    Int @id @default(autoincrement())
-  title String 
-  code  String
+  id Int @id @default(autoincrement())
+  title String
+  code String
 }

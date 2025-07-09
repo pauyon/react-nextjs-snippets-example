@@ -40,7 +40,7 @@ export async function createSnippet(formState: {message: string}, formData: Form
         }
 
         // Create a new record in the database
-        const snippet = await db.snippet.create({
+        await db.snippet.create({
             data: {
                 title,
                 code
